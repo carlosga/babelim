@@ -28,7 +28,6 @@
 */
 
 using System.ComponentModel;
-using System.Windows.Threading;
 
 namespace BabelIm.Infrastructure
 {

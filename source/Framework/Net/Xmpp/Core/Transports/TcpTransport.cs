@@ -1,4 +1,10 @@
-﻿using System;
+﻿// Copyright (c) Carlos Guzmán Álvarez. All rights reserved.
+// Licensed under the New BSD License (BSD). See LICENSE file in the project root for full license information.
+
+using BabelIm.Net.Xmpp.Serialization;
+using BabelIm.Net.Xmpp.Serialization.Core.Tls;
+using Org.Mentalis.Network.ProxySocket;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -8,9 +14,6 @@ using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Text;
 using System.Threading;
-using BabelIm.Net.Xmpp.Serialization;
-using BabelIm.Net.Xmpp.Serialization.Core.Tls;
-using Org.Mentalis.Network.ProxySocket;
 
 namespace BabelIm.Net.Xmpp.Core.Transports
 {
@@ -22,21 +25,21 @@ namespace BabelIm.Net.Xmpp.Core.Transports
     {
         #region · Constants ·
 
-        const string StreamNamespace    = "jabber:client";
-        const string StreamURI          = "http://etherx.jabber.org/streams";
-        const string StreamVersion      = "1.0";
-        const string StreamFormat       = "<?xml version='1.0' encoding='UTF-8' ?><stream:stream xmlns='{0}' xmlns:stream='{1}' to='{2}' version='{3}'>";
-        const string EndStream          = "</stream:stream>";
+        const string StreamNamespace = "jabber:client";
+        const string StreamURI       = "http://etherx.jabber.org/streams";
+        const string StreamVersion   = "1.0";
+        const string StreamFormat    = "<?xml version='1.0' encoding='UTF-8' ?><stream:stream xmlns='{0}' xmlns:stream='{1}' to='{2}' version='{3}'>";
+        const string EndStream       = "</stream:stream>";
 
         #endregion
 
         #region · Fields ·
 
-        private ProxySocket         socket;
-        private System.IO.Stream    networkStream;
-        private XmppMemoryStream	inputBuffer;
-        private XmppStreamParser	parser;
-        private AutoResetEvent      tlsProceedEvent;
+        private ProxySocket      socket;
+        private System.IO.Stream networkStream;
+        private XmppMemoryStream inputBuffer;
+        private XmppStreamParser parser;
+        private AutoResetEvent   tlsProceedEvent;
 
         #endregion
 
@@ -60,8 +63,8 @@ namespace BabelIm.Net.Xmpp.Core.Transports
         public override void Open(XmppConnectionString connectionString)
         {
             // Connection string
-            this.ConnectionString   = connectionString;
-            this.UserId             = this.ConnectionString.UserId;
+            this.ConnectionString = connectionString;
+            this.UserId           = this.ConnectionString.UserId;
 
             // Initialization
             this.Initialize();
@@ -162,14 +165,11 @@ namespace BabelIm.Net.Xmpp.Core.Transports
         public override void InitializeXmppStream()
         {
             // Serialization can't be used in this case
-            string xml = String.Format
-            (
-                StreamFormat,
-                StreamNamespace,
-                StreamURI,
-                this.UserId.DomainName,
-                StreamVersion
-            );
+            string xml = String.Format(StreamFormat
+                                     , StreamNamespace
+                                     , StreamURI
+                                     , this.UserId.DomainName
+                                     , StreamVersion);
 
             this.Send(xml);
         }
@@ -184,8 +184,7 @@ namespace BabelIm.Net.Xmpp.Core.Transports
         public void OpenSecureConnection()
         {
             // Send Start TLS message
-            StartTls tlsMsg = new StartTls();
-            this.Send(tlsMsg);
+            this.Send(new StartTls());
 
             this.tlsProceedEvent.WaitOne();
 
@@ -210,12 +209,9 @@ namespace BabelIm.Net.Xmpp.Core.Transports
             }
 
             // Initialize the Ssl Stream
-            this.networkStream = new SslStream
-            (
-                new NetworkStream(this.socket, false),
-                false,
-                new RemoteCertificateValidationCallback(RemoteCertificateValidation)
-            );
+            this.networkStream = new SslStream(new NetworkStream(this.socket, false)
+                                             , false
+                                             , new RemoteCertificateValidationCallback(RemoteCertificateValidation));
 
             // Perform SSL Authentication
             ((SslStream)this.networkStream).AuthenticateAsClient
@@ -243,15 +239,12 @@ namespace BabelIm.Net.Xmpp.Core.Transports
                     base.ResolveHostName();
                 }
 
-                IPAddress   hostadd         = Dns.GetHostEntry(this.HostName).AddressList[0];
-                IPEndPoint  hostEndPoint    = new IPEndPoint(hostadd, this.ConnectionString.PortNumber);
-
                 this.socket = new ProxySocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
                 if (this.ConnectionString.UseProxy)
                 {
-                    IPAddress   proxyadd        = Dns.GetHostEntry(this.ConnectionString.ProxyServer).AddressList[0];
-                    IPEndPoint  proxyEndPoint   = new IPEndPoint(proxyadd, this.ConnectionString.ProxyPortNumber);
+                    var proxyadd      = Dns.GetHostEntry(this.ConnectionString.ProxyServer).AddressList[0];
+                    var proxyEndPoint = new IPEndPoint(proxyadd, this.ConnectionString.ProxyPortNumber);
 
                     switch (this.ConnectionString.ProxyType)
                     {
@@ -268,8 +261,8 @@ namespace BabelIm.Net.Xmpp.Core.Transports
                             break;
                     }
 
-                    this.socket.ProxyEndPoint   = proxyEndPoint;
-                    this.socket.ProxyUser       = this.ConnectionString.ProxyUserName;
+                    this.socket.ProxyEndPoint = proxyEndPoint;
+                    this.socket.ProxyUser     = this.ConnectionString.ProxyUserName;
 
                     if (!String.IsNullOrWhiteSpace(this.ConnectionString.ProxyPassword))
                     {
@@ -278,10 +271,10 @@ namespace BabelIm.Net.Xmpp.Core.Transports
                 }                
 
                 // Disables the Nagle algorithm for send coalescing.
-                this.socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, 1);
+                //this.socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, 1);
 
                 // Make the socket to connect to the Server
-                this.socket.Connect(hostEndPoint);
+                this.socket.Connect(this.HostName, this.ConnectionString.PortNumber);
 
                 // Create the Stream Instance
                 this.networkStream = new NetworkStream(this.socket, false);
@@ -301,11 +294,11 @@ namespace BabelIm.Net.Xmpp.Core.Transports
         /// </summary>
         private void BeginReceiveData() 
         {
-            StateObject     state           = new StateObject(this.networkStream);
-            AsyncCallback   asyncCallback   = new AsyncCallback(ReceiveCallback);
+            var state         = new StateObject(this.networkStream);
+            var asyncCallback = new AsyncCallback(ReceiveCallback);
 
             // Begin receiving the data from the remote device.
-            IAsyncResult ar = state.WorkStream.BeginRead(state.Buffer, 0, state.Buffer.Length, asyncCallback, state);
+            var ar = state.WorkStream.BeginRead(state.Buffer, 0, state.Buffer.Length, asyncCallback, state);
 
             if (ar.CompletedSynchronously)
             {
@@ -333,8 +326,7 @@ namespace BabelIm.Net.Xmpp.Core.Transports
         {
             // Retrieve the state object and the client socket 
             // from the asynchronous state object.
-            StateObject             state       = (StateObject)ar.AsyncState;
-            List<AutoResetEvent>    resetEvents = null;
+            var state = (StateObject)ar.AsyncState;
 
             if (state.WorkStream != null && state.WorkStream.CanRead)
             {
@@ -354,7 +346,7 @@ namespace BabelIm.Net.Xmpp.Core.Transports
                     
                     Monitor.Exit(this.SyncReads);
 
-                    resetEvents = this.ProcessPendingMessages();
+                    var resetEvents = this.ProcessPendingMessages();
 
                     if (resetEvents != null && resetEvents.Count > 0)
                     {
@@ -381,11 +373,11 @@ namespace BabelIm.Net.Xmpp.Core.Transports
         /// <returns></returns>
         private List<AutoResetEvent> ProcessPendingMessages()
         {
-            List<AutoResetEvent> resetEvents = new List<AutoResetEvent>();
+            var resetEvents = new List<AutoResetEvent>();
 
             while (this.parser != null && !this.parser.EOF)
             {
-                AutoResetEvent resetEvent = this.ProcessXmppMessage(this.parser.ReadNextNode());
+                var resetEvent = this.ProcessXmppMessage(this.parser.ReadNextNode());
 
                 if (resetEvent != null)
                 {
@@ -466,9 +458,9 @@ namespace BabelIm.Net.Xmpp.Core.Transports
         /// </summary>
         private void Initialize()
         {
-            this.inputBuffer        = new XmppMemoryStream();
-            this.parser             = new XmppStreamParser(this.inputBuffer);
-            this.tlsProceedEvent    = new AutoResetEvent(false);
+            this.inputBuffer     = new XmppMemoryStream();
+            this.parser          = new XmppStreamParser(this.inputBuffer);
+            this.tlsProceedEvent = new AutoResetEvent(false);
         }
 
         #endregion

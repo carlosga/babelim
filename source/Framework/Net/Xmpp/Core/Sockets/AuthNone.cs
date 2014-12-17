@@ -30,8 +30,6 @@
 
 namespace Org.Mentalis.Network.ProxySocket.Authentication
 {
-    using System;
-    using System.Net;
     using System.Net.Sockets;
 
     /// <summary>

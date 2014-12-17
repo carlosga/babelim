@@ -1,5 +1,5 @@
-﻿using System.Windows.Input;
-using BabelIm.Configuration;
+﻿using BabelIm.Configuration;
+using System.Windows.Input;
 
 namespace BabelIm.Contracts
 {

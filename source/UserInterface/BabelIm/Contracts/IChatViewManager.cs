@@ -1,6 +1,6 @@
-﻿using System.Windows;
-using BabelIm.Net.Xmpp.Core;
+﻿using BabelIm.Net.Xmpp.Core;
 using BabelIm.Net.Xmpp.InstantMessaging;
+using System.Windows;
 
 namespace BabelIm.Contracts
 {

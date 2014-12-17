@@ -27,17 +27,16 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Documents;
-using System.Windows.Media;
-using System.Windows.Threading;
 using BabelIm.Contracts;
 using BabelIm.Infrastructure;
 using BabelIm.IoC;
 using BabelIm.Net.Xmpp.Core;
 using BabelIm.Net.Xmpp.InstantMessaging;
+using System;
+using System.Threading.Tasks;
+using System.Windows.Documents;
+using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace BabelIm.ViewModels
 {

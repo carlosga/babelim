@@ -1,7 +1,7 @@
-﻿using System.Windows.Controls;
-using BabelIm.Infrastructure;
+﻿using BabelIm.Infrastructure;
 using BabelIm.Net.Xmpp.Core;
 using BabelIm.ViewModels;
+using System.Windows.Controls;
 
 namespace BabelIm.Views
 {

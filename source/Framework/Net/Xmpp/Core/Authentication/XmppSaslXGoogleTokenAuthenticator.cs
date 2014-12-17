@@ -1,9 +1,12 @@
-﻿using System;
+﻿// Copyright (c) Carlos Guzmán Álvarez. All rights reserved.
+// Licensed under the New BSD License (BSD). See LICENSE file in the project root for full license information.
+
+using BabelIm.Net.Xmpp.Serialization.Core.Sasl;
+using System;
 using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
-using BabelIm.Net.Xmpp.Serialization.Core.Sasl;
 
 namespace BabelIm.Net.Xmpp.Core
 {
@@ -15,10 +18,10 @@ namespace BabelIm.Net.Xmpp.Core
     {
         #region · Fields ·
 
-        private AutoResetEvent  waitEvent;
-        private string          sid;
-        private string          lsid;
-        private string          auth;
+        private AutoResetEvent waitEvent;
+        private string         sid;
+        private string         lsid;
+        private string         auth;
 
         #endregion
 
@@ -45,8 +48,8 @@ namespace BabelIm.Net.Xmpp.Core
             if (this.RequestToken())
             {
                 // Send authentication mechanism
-                Auth auth   = new Auth();
-                auth.Value  = this.BuildMessage();
+                Auth auth  = new Auth();
+                auth.Value = this.BuildMessage();
 
                 auth.Mechanism = XmppCodes.SaslXGoogleTokenMechanism;
 
@@ -105,56 +108,57 @@ namespace BabelIm.Net.Xmpp.Core
         /// <returns></returns>
         private bool RequestToken()
         {
-            HttpWebRequest  request         = (HttpWebRequest)HttpWebRequest.Create("https://www.google.com/accounts/ClientAuth");
-            StringBuilder   requestString   = new StringBuilder();
+            var request       = (HttpWebRequest)HttpWebRequest.Create("https://www.google.com/accounts/ClientAuth");
+            var requestString = new StringBuilder();
 
             request.Method      = "POST";
             request.ContentType = "application/x-www-form-urlencoded";
 
-            System.IO.Stream stream = request.GetRequestStream();
-
-            requestString.AppendFormat("Email={0}", this.Connection.UserId.BareIdentifier);
-            requestString.AppendFormat("&Passwd={0}", this.Connection.UserPassword);
-            requestString.AppendFormat("&source={0}", this.Connection.UserId.ResourceName);
-            requestString.AppendFormat("&service={0}", "mail");
-            requestString.AppendFormat("&PersistentCookie={0}", false);
-
-            byte[] buffer = Encoding.UTF8.GetBytes(requestString.ToString());
-
-            stream.Write(buffer, 0, buffer.Length);
-            stream.Dispose();
-
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-
-            if (response.StatusCode == HttpStatusCode.OK)
+            using (System.IO.Stream stream = request.GetRequestStream())
             {
-                System.IO.Stream    responseStream  = response.GetResponseStream();
-                StreamReader        responseReader  = new StreamReader(responseStream, true);
+                requestString.AppendFormat("Email={0}"            , this.Connection.UserId.BareIdentifier);
+                requestString.AppendFormat("&Passwd={0}"          , this.Connection.UserPassword);
+                requestString.AppendFormat("&source={0}"          , this.Connection.UserId.ResourceName);
+                requestString.AppendFormat("&service={0}"         , "mail");
+                requestString.AppendFormat("&PersistentCookie={0}", false);
 
-                while (responseReader.Peek() != -1)
+                byte[] buffer = Encoding.UTF8.GetBytes(requestString.ToString());
+
+                stream.Write(buffer, 0, buffer.Length);
+            }
+
+            using (var response = (HttpWebResponse)request.GetResponse())
+            {
+                if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    string data = responseReader.ReadLine();
+                    var responseStream  = response.GetResponseStream();
+                    var responseReader  = new StreamReader(responseStream, true);
 
-                    if (data.StartsWith("SID="))
+                    while (responseReader.Peek() != -1)
                     {
-                        this.sid = data.Replace("SID=", "");
+                        string data = responseReader.ReadLine();
+
+                        if (data.StartsWith("SID="))
+                        {
+                            this.sid = data.Replace("SID=", "");
+                        }
+                        else if (data.StartsWith("LSID="))
+                        {
+                            this.lsid = data.Replace("LSID=", "");
+                        }
+                        else if (data.StartsWith("Auth="))
+                        {
+                            this.auth = data.Replace("Auth=", "");
+                        }
                     }
-                    else if (data.StartsWith("LSID="))
-                    {
-                        this.lsid = data.Replace("LSID=", "");
-                    }
-                    else if (data.StartsWith("Auth="))
-                    {
-                        this.auth = data.Replace("Auth=", "");
-                    }
+
+                    responseStream.Dispose();
+                    responseReader.Dispose();
+
+                    return (!String.IsNullOrEmpty(this.sid) 
+                         && !String.IsNullOrEmpty(this.lsid) 
+                         && !String.IsNullOrEmpty(auth));
                 }
-
-                responseStream.Dispose();
-                responseReader.Dispose();
-
-                return (!String.IsNullOrEmpty(this.sid) && 
-                            !String.IsNullOrEmpty(this.lsid) && 
-                                !String.IsNullOrEmpty(auth));
             }
 
             return false;

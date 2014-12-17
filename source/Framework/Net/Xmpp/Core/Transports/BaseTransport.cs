@@ -1,10 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Sockets;
+﻿// Copyright (c) Carlos Guzmán Álvarez. All rights reserved.
+// Licensed under the New BSD License (BSD). See LICENSE file in the project root for full license information.
+
 using DnDns.Enums;
 using DnDns.Query;
 using DnDns.Records;
+using System;
+using System.Linq;
+using System.Net.Sockets;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 
 namespace BabelIm.Net.Xmpp.Core.Transports
 {
@@ -16,12 +20,12 @@ namespace BabelIm.Net.Xmpp.Core.Transports
     {
         #region · Fields ·
 
-        private bool                    isDisposed;
-        private XmppConnectionString    connectionString;
-        private string                  hostName;
-        private XmppJid                 userId;
-        private object                  syncReads;
-        private object                  syncWrites;
+        private bool                 isDisposed;
+        private XmppConnectionString connectionString;
+        private string               hostName;
+        private XmppJid              userId;
+        private object               syncReads;
+        private object               syncWrites;
 
         #region · Observable Subjects ·
 
@@ -141,9 +145,6 @@ namespace BabelIm.Net.Xmpp.Core.Transports
         /// </summary>
         ~BaseTransport()
         {
-            // Do not re-create Dispose clean-up code here.
-            // Calling Dispose(false) is optimal in terms of
-            // readability and maintainability.
             this.Dispose(false);
         }
 
@@ -179,10 +180,10 @@ namespace BabelIm.Net.Xmpp.Core.Transports
                     this.Close();
                 }
 
-                this.userId             = null;
-                this.connectionString   = null;
-                this.syncReads          = null;
-                this.syncWrites         = null;
+                this.userId           = null;
+                this.connectionString = null;
+                this.syncReads        = null;
+                this.syncWrites       = null;
 
                 this.onMessageReceivedSubject       = null;
                 this.onXmppStreamInitializedSubject = null;
@@ -230,14 +231,9 @@ namespace BabelIm.Net.Xmpp.Core.Transports
         {
             try
             {
-                DnsQueryRequest     request     = new DnsQueryRequest();
-                DnsQueryResponse    response    = request.Resolve
-                (
-                    String.Format("{0}.{1}", XmppCodes.XmppSrvRecordPrefix, this.ConnectionString.HostName),
-                    NsType.SRV,
-                    NsClass.INET,
-                    ProtocolType.Tcp
-                );
+                var host     = String.Format("{0}.{1}", XmppCodes.XmppSrvRecordPrefix, this.ConnectionString.HostName);
+                var request  = new DnsQueryRequest();
+                var response = request.Resolve(host, NsType.SRV, NsClass.INET, ProtocolType.Tcp);
 
                 foreach (SrvRecord record in response.Answers.OfType<SrvRecord>())
                 {

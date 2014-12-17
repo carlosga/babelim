@@ -1,36 +1,6 @@
-﻿/*
-    Copyright (c) 2007 - 2010, Carlos Guzmán Álvarez
+﻿// Copyright (c) Carlos Guzmán Álvarez. All rights reserved.
+// Licensed under the New BSD License (BSD). See LICENSE file in the project root for full license information.
 
-    All rights reserved.
-
-    Redistribution and use in source and binary forms, with or without modification, 
-    are permitted provided that the following conditions are met:
-
-        * Redistributions of source code must retain the above copyright notice, 
-          this list of conditions and the following disclaimer.
-        * Redistributions in binary form must reproduce the above copyright notice, 
-          this list of conditions and the following disclaimer in the documentation and/or 
-          other materials provided with the distribution.
-        * Neither the name of the author nor the names of its contributors may be used to endorse or 
-          promote products derived from this software without specific prior written permission.
-
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-    A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-    LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using BabelIm.Net.Xmpp.Core.Transports;
 using BabelIm.Net.Xmpp.Serialization.Core.ResourceBinding;
 using BabelIm.Net.Xmpp.Serialization.Core.Sasl;
@@ -42,6 +12,11 @@ using BabelIm.Net.Xmpp.Serialization.Extensions.XmppPing;
 using BabelIm.Net.Xmpp.Serialization.InstantMessaging.Client;
 using BabelIm.Net.Xmpp.Serialization.InstantMessaging.Client.Presence;
 using BabelIm.Net.Xmpp.Serialization.InstantMessaging.Roster;
+using System;
+using System.Linq;
+using System.Reactive.Subjects;
+using System.Reactive.Linq;
+using System.Threading;
 
 namespace BabelIm.Net.Xmpp.Core
 {
@@ -115,15 +90,15 @@ namespace BabelIm.Net.Xmpp.Core
 
         #region · Fields ·
 
-        private XmppConnectionString	connectionString;
-        private XmppConnectionState		state;
-        private XmppStreamFeatures		streamFeatures;
-        private XmppJid                 userId;
-        private AutoResetEvent          initializedStreamEvent;
-        private AutoResetEvent          streamFeaturesEvent;
-        private AutoResetEvent          bindResourceEvent;
-        private ITransport              transport;
-        private bool                    isDisposed;
+        private XmppConnectionString connectionString;
+        private XmppConnectionState	 state;
+        private XmppStreamFeatures	 streamFeatures;
+        private XmppJid              userId;
+        private AutoResetEvent       initializedStreamEvent;
+        private AutoResetEvent       streamFeaturesEvent;
+        private AutoResetEvent       bindResourceEvent;
+        private ITransport           transport;
+        private bool                 isDisposed;
 
         #region · Observable Subscriptions ·
         
@@ -135,13 +110,13 @@ namespace BabelIm.Net.Xmpp.Core
 
         #region · Subject Fields ·
 
-        private Subject<XmppMessage>        onMessageReceived           = new Subject<XmppMessage>();
-        private Subject<IQ>                 onInfoQueryMessage          = new Subject<IQ>();
-        private Subject<IQ>                 onServiceDiscoveryMessage   = new Subject<IQ>();
-        private Subject<IQ>                 onVCardMessage              = new Subject<IQ>();
-        private Subject<RosterQuery>        onRosterMessage             = new Subject<RosterQuery>();
-        private Subject<Presence>           onPresenceMessage           = new Subject<Presence>();
-        private Subject<XmppEventMessage>   onEventMessage              = new Subject<XmppEventMessage>();
+        private Subject<XmppMessage>      onMessageReceived         = new Subject<XmppMessage>();
+        private Subject<IQ>               onInfoQueryMessage        = new Subject<IQ>();
+        private Subject<IQ>               onServiceDiscoveryMessage = new Subject<IQ>();
+        private Subject<IQ>               onVCardMessage            = new Subject<IQ>();
+        private Subject<RosterQuery>      onRosterMessage           = new Subject<RosterQuery>();
+        private Subject<Presence>         onPresenceMessage         = new Subject<Presence>();
+        private Subject<XmppEventMessage> onEventMessage            = new Subject<XmppEventMessage>();
         
         #endregion
 
@@ -413,8 +388,7 @@ namespace BabelIm.Net.Xmpp.Core
 
                 if (this.transport is ISecureTransport)
                 {
-                    if (this.connectionString.PortNumber != 443 &&
-                        this.connectionString.PortNumber != 5223)
+                    if (this.connectionString.PortNumber != 443 && this.connectionString.PortNumber != 5223)
                     {
                         if (this.SupportsFeature(XmppStreamFeatures.SecureConnection))
                         {
@@ -537,10 +511,10 @@ namespace BabelIm.Net.Xmpp.Core
                         this.transport = null;
                     }
 
-                    this.streamFeatures         = this.streamFeatures & (~this.streamFeatures);
-                    this.state                  = XmppConnectionState.Closed;
-                    this.connectionString		= null;
-                    this.userId                 = null;
+                    this.streamFeatures   = this.streamFeatures & (~this.streamFeatures);
+                    this.state            = XmppConnectionState.Closed;
+                    this.connectionString = null;
+                    this.userId           = null;
                 }
 
                 if (this.ConnectionClosed != null)
@@ -774,10 +748,10 @@ namespace BabelIm.Net.Xmpp.Core
                                 (
                                     new IQ
                                     {
-                                        ID      = iq.ID,
-                                        To      = iq.From,
-                                        From    = this.UserId.ToString(),
-                                        Type    = IQType.Result
+                                        ID   = iq.ID,
+                                        To   = iq.From,
+                                        From = this.UserId.ToString(),
+                                        Type = IQType.Result
                                     }
                                 );
                             }
@@ -810,8 +784,8 @@ namespace BabelIm.Net.Xmpp.Core
 
         private bool Authenticate()
         {
-            XmppAuthenticator   authenticator   = null;
-            bool                result          = false;
+            XmppAuthenticator authenticator = null;
+            bool              result        = false;
             
             try
             {
@@ -867,8 +841,8 @@ namespace BabelIm.Net.Xmpp.Core
         {
             if (this.SupportsFeature(XmppStreamFeatures.ResourceBinding))
             {
-                Bind bind		= new Bind();
-                bind.Resource	= this.UserId.ResourceName;
+                Bind bind	  = new Bind();
+                bind.Resource = this.UserId.ResourceName;
 
                 IQ iq   = new IQ();
                 iq.Type = IQType.Set;

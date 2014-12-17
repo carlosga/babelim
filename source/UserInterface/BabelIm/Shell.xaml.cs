@@ -1,16 +1,17 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Interop;
-using System.Windows.Threading;
-using BabelIm.Infrastructure;
+﻿using BabelIm.Infrastructure;
 using BabelIm.IoC;
 using BabelIm.Net.Xmpp.Core;
 using BabelIm.Net.Xmpp.InstantMessaging;
 using BabelIm.Net.Xmpp.Serialization.InstantMessaging.Client;
 using BabelIm.ViewModels;
+using System;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Threading;
+using System.Windows;
+using System.Windows.Input;
+using System.Windows.Interop;
+using System.Windows.Threading;
 
 namespace BabelIm
 {

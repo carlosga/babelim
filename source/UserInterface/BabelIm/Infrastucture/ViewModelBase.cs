@@ -22,8 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-using System;
-using System.Windows.Threading;
 using BabelIm.Net.Xmpp.InstantMessaging;
 
 namespace BabelIm.Infrastructure

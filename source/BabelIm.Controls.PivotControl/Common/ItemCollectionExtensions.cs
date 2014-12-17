@@ -1,5 +1,4 @@
-﻿using BabelIm.Controls.PivotControl;
-
+﻿
 namespace System.Windows.Controls
 {
     public static class ItemCollectionExtensions

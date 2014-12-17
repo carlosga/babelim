@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace BabelIm.IoC
 {
@@ -25,12 +22,6 @@ namespace BabelIm.IoC
         /// <typeparam name="TService">Type of dependency</typeparam>
         /// <returns>instance of TService</returns>
         object Resolve(Type type);
-
-        /// <summary>
-        /// Register type into service locator
-        /// </summary>
-        /// <param name="type">Type to register</param>
-        void RegisterType(Type type);
 
         #endregion
     }

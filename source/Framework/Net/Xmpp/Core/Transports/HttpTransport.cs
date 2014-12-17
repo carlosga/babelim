@@ -1,4 +1,9 @@
-﻿using System;
+﻿// Copyright (c) Carlos Guzmán Álvarez. All rights reserved.
+// Licensed under the New BSD License (BSD). See LICENSE file in the project root for full license information.
+
+using BabelIm.Net.Xmpp.Serialization;
+using BabelIm.Net.Xmpp.Serialization.Extensions.Bosh;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -6,9 +11,6 @@ using System.Net.Security;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using BabelIm.Net.Xmpp.Serialization;
-using BabelIm.Net.Xmpp.Serialization.Extensions.Bosh;
-using System.Threading;
 
 namespace BabelIm.Net.Xmpp.Core.Transports
 {
@@ -24,20 +26,19 @@ namespace BabelIm.Net.Xmpp.Core.Transports
     {
         #region · Consts ·
 
-        const string ContentType        = "text/xml; charset=utf-8";
-        const string BoshVersion        = "1.10";
-        const string RouteFormat        = "xmpp:{0}:9999";
-        const string DefaultLanguage    = "en";
+        const string ContentType     = "text/xml; charset=utf-8";
+        const string BoshVersion     = "1.10";
+        const string RouteFormat     = "xmpp:{0}:9999";
+        const string DefaultLanguage = "en";
 
         #endregion
 
         #region · Static Methods ·
 
-        private static bool ValidateRemoteCertificate(
-            object sender,
-            X509Certificate certificate,
-            X509Chain chain,
-            SslPolicyErrors policyErrors)
+        private static bool ValidateRemoteCertificate(object          sender
+                                                    , X509Certificate certificate
+                                                    , X509Chain       chain
+                                                    , SslPolicyErrors policyErrors)
         {
             // allow any old dodgy certificate...
             return true;
@@ -47,8 +48,8 @@ namespace BabelIm.Net.Xmpp.Core.Transports
 
         #region · Fields ·
 
-        private HttpBindBody    streamResponse;
-        private long            rid;
+        private HttpBindBody streamResponse;
+        private long         rid;
 
         #endregion
 
@@ -66,17 +67,19 @@ namespace BabelIm.Net.Xmpp.Core.Transports
         public override void Open(XmppConnectionString connectionString)
         {
             // Connection string
-            this.ConnectionString   = connectionString;
-            this.UserId             = this.ConnectionString.UserId;
+            this.ConnectionString = connectionString;
+            this.UserId           = this.ConnectionString.UserId;
 
             // Generate initial RID
-            var     rng     = new RNGCryptoServiceProvider();
-            byte[]  bytes   = new byte[32 / 8];
+            using (var rng = new RNGCryptoServiceProvider())
+            {
+                byte[] bytes = new byte[32 / 8];
 
-            rng.GetBytes(bytes);
+                rng.GetBytes(bytes);
 
-            this.rid = BitConverter.ToInt32(bytes, 0);
-            this.rid = (this.rid < 0) ? -this.rid : this.rid;
+                this.rid = BitConverter.ToInt32(bytes, 0);
+                this.rid = (this.rid < 0) ? -this.rid : this.rid;
+            }
 
             // HTTP Configuration
             ServicePointManager.Expect100Continue                   = false;
@@ -85,23 +88,24 @@ namespace BabelIm.Net.Xmpp.Core.Transports
 
         public override void InitializeXmppStream()
         {
-            HttpBindBody message = new HttpBindBody();
-
-            message.Rid             = (this.rid++).ToString();
-            message.To              = this.ConnectionString.HostName;
-            message.Lang            = DefaultLanguage;
+            var message = new HttpBindBody
+            {
+                Rid  = (this.rid++).ToString()
+              , To   = this.ConnectionString.HostName
+              , Lang = DefaultLanguage
+            };
             
             if (this.streamResponse == null)
             {
-                message.Content         = HttpTransport.ContentType;
-                message.From            = this.UserId.BareIdentifier;
-                message.Hold            = 1;
-                message.HoldSpecified   = true;
-                message.Route           = String.Format(RouteFormat, this.ConnectionString.HostName);
-                message.Ver             = HttpTransport.BoshVersion;
-                message.Wait            = 60;
-                message.WaitSpecified   = true;
-                message.Ack             = "1";
+                message.Content       = HttpTransport.ContentType;
+                message.From          = this.UserId.BareIdentifier;
+                message.Hold          = 1;
+                message.HoldSpecified = true;
+                message.Route         = String.Format(RouteFormat, this.ConnectionString.HostName);
+                message.Ver           = HttpTransport.BoshVersion;
+                message.Wait          = 60;
+                message.WaitSpecified = true;
+                message.Ack           = "1";
             }
             else
             {
@@ -109,7 +113,7 @@ namespace BabelIm.Net.Xmpp.Core.Transports
                 message.Restart = true;
             }
 
-            HttpBindBody response = this.SendSync(XmppSerializer.Serialize(message));
+            var response = this.SendSync(XmppSerializer.Serialize(message));
 
 #warning TODO: If no <stream:features/> element is included in the connection manager's session creation response, then the client SHOULD send empty request elements until it receives a response containing a <stream:features/> element.
 
@@ -135,10 +139,11 @@ namespace BabelIm.Net.Xmpp.Core.Transports
         /// <param elementname="message">The message to be sent</param>
         public override void Send(object message)
         {
-            HttpBindBody body = new HttpBindBody();
-
-            body.Rid = (this.rid++).ToString();
-            body.Sid = this.streamResponse.Sid;
+            var body = new HttpBindBody
+            {
+                Rid = (this.rid++).ToString()
+              , Sid = this.streamResponse.Sid
+            };
 
             body.Items.Add(message);
 
@@ -159,9 +164,7 @@ namespace BabelIm.Net.Xmpp.Core.Transports
         /// </summary>
         public override void Send(byte[] buffer)
         {
-            HttpBindBody response = this.SendSync(buffer);
-
-            this.ProcessResponse(response);
+            this.ProcessResponse(this.SendSync(buffer));
         }
 
         /// <summary>
@@ -179,19 +182,20 @@ namespace BabelIm.Net.Xmpp.Core.Transports
                 {
                     stream.Write(buffer, 0, buffer.Length);
 
-                    HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponse();
-
-                    if (webResponse.StatusCode == HttpStatusCode.OK)
+                    using (var webResponse = (HttpWebResponse)webRequest.GetResponse())
                     {
-                        using (System.IO.Stream responseStream = webResponse.GetResponseStream())
+                        if (webResponse.StatusCode == HttpStatusCode.OK)
                         {
-                            using (StreamReader responseReader = new StreamReader(responseStream, true))
+                            using (var responseStream = webResponse.GetResponseStream())
                             {
-                                string response = responseReader.ReadToEnd();
+                                using (var  responseReader = new StreamReader(responseStream, true))
+                                {
+                                    string response = responseReader.ReadToEnd();
 
-                                Debug.WriteLine(response);
+                                    Debug.WriteLine(response);
 
-                                return XmppSerializer.Deserialize("body", response) as HttpBindBody;
+                                    return XmppSerializer.Deserialize("body", response) as HttpBindBody;
+                                }
                             }
                         }
                     }
@@ -207,8 +211,8 @@ namespace BabelIm.Net.Xmpp.Core.Transports
 
             ServicePointManager.ServerCertificateValidationCallback -= new RemoteCertificateValidationCallback(ValidateRemoteCertificate);
 
-            this.streamResponse     = null;
-            this.rid                = 0;
+            this.streamResponse = null;
+            this.rid            = 0;
         }
 
         #endregion
@@ -230,9 +234,9 @@ namespace BabelIm.Net.Xmpp.Core.Transports
                 String.Format("https://{0}/http-bind", this.ConnectionString.HostName)
             );
 
-            webRequest.ContentType             = HttpTransport.ContentType;
-            webRequest.Method                  = "POST";
-            webRequest.AutomaticDecompression  = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+            webRequest.ContentType            = HttpTransport.ContentType;
+            webRequest.Method                 = "POST";
+            webRequest.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
 
             return webRequest;
         }

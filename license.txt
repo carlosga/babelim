@@ -1,4 +1,4 @@
-Copyright (c) 2007, Carlos Guzmán Álvarez
+Copyright (c) 2007-2014, Carlos Guzmán Álvarez
 
 All rights reserved.
 

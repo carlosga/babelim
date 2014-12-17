@@ -1,11 +1,11 @@
-﻿using System;
+﻿using BabelIm.IoC;
+using BabelIm.Net.Xmpp.InstantMessaging;
+using BabelIm.ViewModels;
+using System;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using BabelIm.IoC;
-using BabelIm.Net.Xmpp.InstantMessaging;
-using BabelIm.ViewModels;
 
 namespace BabelIm.Views
 {

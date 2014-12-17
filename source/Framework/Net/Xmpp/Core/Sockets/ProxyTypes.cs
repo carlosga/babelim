@@ -31,10 +31,6 @@
 // Implements a number of classes to allow Sockets to connect trough a firewall.
 namespace Org.Mentalis.Network.ProxySocket
 {
-    using System;
-    using System.Net;
-    using System.Net.Sockets;
-
     /// <summary>
     /// Specifies the type of proxy servers that an instance of the ProxySocket class can use.
     /// </summary>

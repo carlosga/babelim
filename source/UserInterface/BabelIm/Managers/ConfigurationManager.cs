@@ -27,12 +27,12 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-using System.Windows.Input;
 using BabelIm.Configuration;
 using BabelIm.Contracts;
 using BabelIm.Infrastructure;
 using BabelIm.IoC;
 using BabelIm.Net.Xmpp.InstantMessaging;
+using System.Windows.Input;
 
 namespace BabelIm
 {

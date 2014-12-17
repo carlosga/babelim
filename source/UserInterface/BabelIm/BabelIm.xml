@@ -28,12 +28,12 @@
       <proxyportnumber>0</proxyportnumber>
       <proxyusername></proxyusername>
       <proxypassword></proxypassword>
-      <resolvehostname>true</resolvehostname>
+      <resolvehostname>false</resolvehostname>
       <usehttpbinding>false</usehttpbinding>
     </server>
-    <server name="Neko IM">
-      <server>neko.im</server>
-      <domain>neko.im</domain>
+    <server name="suchat.org">
+      <server>suchat.org</server>
+      <domain>suchat.org</domain>
       <portnumber>5222</portnumber>
       <timeout>30</timeout>
       <useproxy>false</useproxy>
@@ -58,7 +58,7 @@
       <status></status>
       <resource>Home</resource>
     </account>
-    <account name="Neko IM" server="Neko IM">
+    <account name="suchat.org" server="suchat.org">
       <login>
         <username>carlosga</username>
         <password></password>

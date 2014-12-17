@@ -1,6 +1,6 @@
-﻿using System.Windows;
+﻿using BabelIm.ViewModels;
+using System.Windows;
 using System.Windows.Controls;
-using BabelIm.ViewModels;
 
 namespace BabelIm.Views
 {

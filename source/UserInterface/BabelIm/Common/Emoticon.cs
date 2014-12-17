@@ -27,10 +27,6 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-using System;
-using System.ComponentModel;
-using System.Xml.Schema;
-using System.Xml.Serialization;
 
 namespace BabelIm.Common
 {

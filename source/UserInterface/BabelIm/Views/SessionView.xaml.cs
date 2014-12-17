@@ -1,15 +1,16 @@
-﻿using System;
+﻿using BabelIm.Contracts;
+using BabelIm.IoC;
+using BabelIm.Net.Xmpp.InstantMessaging;
+using BabelIm.Net.Xmpp.InstantMessaging.ServiceDiscovery;
+using BabelIm.ViewModels;
+using System;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
-using BabelIm.Contracts;
-using BabelIm.IoC;
-using BabelIm.Net.Xmpp.InstantMessaging;
-using BabelIm.Net.Xmpp.InstantMessaging.ServiceDiscovery;
-using BabelIm.ViewModels;
 
 namespace BabelIm.Views
 {

@@ -1,36 +1,10 @@
-/*
-    Copyright (c) 2007 - 2010, Carlos Guzmán Álvarez
+// Copyright (c) Carlos Guzmán Álvarez. All rights reserved.
+// Licensed under the New BSD License (BSD). See LICENSE file in the project root for full license information.
 
-    All rights reserved.
-
-    Redistribution and use in source and binary forms, with or without modification, 
-    are permitted provided that the following conditions are met:
-
-        * Redistributions of source code must retain the above copyright notice, 
-          this list of conditions and the following disclaimer.
-        * Redistributions in binary form must reproduce the above copyright notice, 
-          this list of conditions and the following disclaimer in the documentation and/or 
-          other materials provided with the distribution.
-        * Neither the name of the author nor the names of its contributors may be used to endorse or 
-          promote products derived from this software without specific prior written permission.
-
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-    A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-    LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
-
+using Gnu.Inet.Encoding;
 using System;
 using System.Text;
 using System.Text.RegularExpressions;
-using Gnu.Inet.Encoding;
 
 namespace BabelIm.Net.Xmpp.Core
 {
@@ -121,9 +95,9 @@ namespace BabelIm.Net.Xmpp.Core
         /// <param name="resourceName">The resource name</param>
         public XmppJid(string userName, string domainName, string resourceName)
         {
-            this.userName       = Stringprep.NamePrep(userName);
-            this.domainName     = Stringprep.NodePrep(domainName);
-            this.resourceName   = Stringprep.ResourcePrep(resourceName);
+            this.userName     = Stringprep.NamePrep(userName);
+            this.domainName   = Stringprep.NodePrep(domainName);
+            this.resourceName = Stringprep.ResourcePrep(resourceName);
 
             this.BuildBareAndFullJid();
         }
@@ -217,11 +191,11 @@ namespace BabelIm.Net.Xmpp.Core
         {
             StringBuilder jidBuffer = new StringBuilder();
 
-            if (this.UserName != null && this.userName.Length > 0)
+            if (!String.IsNullOrEmpty(this.UserName))
             {
                 jidBuffer.Append(this.UserName);
             }
-            if (this.DomainName != null && this.DomainName.Length > 0)
+            if (!String.IsNullOrEmpty(this.DomainName))
             {
                 if (jidBuffer.Length > 0)
                 {
@@ -233,7 +207,7 @@ namespace BabelIm.Net.Xmpp.Core
 
             this.bareJid = jidBuffer.ToString();
 
-            if (this.ResourceName != null && this.ResourceName.Length > 0)
+            if (!String.IsNullOrEmpty(this.ResourceName))
             {
                 jidBuffer.AppendFormat("/{0}", this.ResourceName);
             }

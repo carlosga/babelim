@@ -1,31 +1,5 @@
-﻿/*
-    Copyright (c) 2007 - 2010, Carlos Guzmán Álvarez
-
-    All rights reserved.
-
-    Redistribution and use in source and binary forms, with or without modification, 
-    are permitted provided that the following conditions are met:
-
-        * Redistributions of source code must retain the above copyright notice, 
-          this list of conditions and the following disclaimer.
-        * Redistributions in binary form must reproduce the above copyright notice, 
-          this list of conditions and the following disclaimer in the documentation and/or 
-          other materials provided with the distribution.
-        * Neither the name of the author nor the names of its contributors may be used to endorse or 
-          promote products derived from this software without specific prior written permission.
-
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-    "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-    A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-    CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-    EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-    LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-    NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+﻿// Copyright (c) Carlos Guzmán Álvarez. All rights reserved.
+// Licensed under the New BSD License (BSD). See LICENSE file in the project root for full license information.
 
 using System;
 using System.Collections.Generic;
@@ -78,21 +52,21 @@ namespace BabelIm.Net.Xmpp.Core
         {
             Dictionary<string, string> synonyms = new Dictionary<string, string>();
 
-            synonyms.Add("server",              "server");
-            synonyms.Add("port number",         "port number");
-            synonyms.Add("user id",             "user id");
-            synonyms.Add("uid",                 "user id");
-            synonyms.Add("user password",       "user password");
-            synonyms.Add("resource",            "resource");
-            synonyms.Add("connection timeout",  "connection timeout");
-            synonyms.Add("use proxy",           "use proxy");
-            synonyms.Add("proxy type",          "proxy type");
-            synonyms.Add("proxy server",        "proxy server");
-            synonyms.Add("proxy port number",   "proxy port number");
-            synonyms.Add("proxy user name",     "proxy user name");
-            synonyms.Add("proxy password",      "proxy password");
-            synonyms.Add("http binding",        "http binding");
-            synonyms.Add("resolve host name",   "resolve host name");
+            synonyms.Add("server"            , "server");
+            synonyms.Add("port number"       , "port number");
+            synonyms.Add("user id"           , "user id");
+            synonyms.Add("uid"               , "user id");
+            synonyms.Add("user password"     , "user password");
+            synonyms.Add("resource"          , "resource");
+            synonyms.Add("connection timeout", "connection timeout");
+            synonyms.Add("use proxy"         , "use proxy");
+            synonyms.Add("proxy type"        , "proxy type");
+            synonyms.Add("proxy server"      , "proxy server");
+            synonyms.Add("proxy port number" , "proxy port number");
+            synonyms.Add("proxy user name"   , "proxy user name");
+            synonyms.Add("proxy password"    , "proxy password");
+            synonyms.Add("http binding"      , "http binding");
+            synonyms.Add("resolve host name" , "resolve host name");
 
             return synonyms;
         }
@@ -245,8 +219,8 @@ namespace BabelIm.Net.Xmpp.Core
         /// </returns>
         public override string ToString()
         {
-            StringBuilder cs = new StringBuilder();
-            Dictionary<string, object>.Enumerator e = this.options.GetEnumerator();
+            var cs = new StringBuilder();
+            var e  = this.options.GetEnumerator();
 
             while (e.MoveNext())
             {
@@ -273,13 +247,13 @@ namespace BabelIm.Net.Xmpp.Core
         {
             this.options.Clear();
 
-            this.options.Add("login server",        null);
-            this.options.Add("port number",         5222);
-            this.options.Add("user id",             null);
-            this.options.Add("user password",       null);
-            this.options.Add("resource",            null);
-            this.options.Add("sasl",                false);
-            this.options.Add("connection timeout",  -1);
+            this.options.Add("login server"      , null);
+            this.options.Add("port number"       , 5222);
+            this.options.Add("user id"           , null);
+            this.options.Add("user password"     , null);
+            this.options.Add("resource"          , null);
+            this.options.Add("sasl"              , false);
+            this.options.Add("connection timeout", -1);
         }
 
         private void Load(string connectionString)
@@ -292,16 +266,15 @@ namespace BabelIm.Net.Xmpp.Core
             {
                 string[] values = keyPair.Split('=');
 
-                if (values.Length == 2 &&
-                    values[0] != null && values[0].Length > 0 &&
-                    values[1] != null && values[1].Length > 0)
+                if (values.Length == 2 
+                 && !String.IsNullOrEmpty(values[0])
+                 && !String.IsNullOrEmpty(values[1]))
                 {
                     values[0] = values[0].ToLower(CultureInfo.CurrentUICulture);
 
                     if (Synonyms.ContainsKey(values[0]))
                     {
-                        string key = (string)Synonyms[values[0]];
-                        this.options[key] = values[1].Trim();
+                        this.options[(string)Synonyms[values[0]]] = values[1].Trim();
                     }
                 }
             }
@@ -311,9 +284,9 @@ namespace BabelIm.Net.Xmpp.Core
 
         private void Validate()
         {
-            if ((this.HostName == null || this.HostName.Length == 0) ||
-                (this.UserId == null || this.UserId.Length == 0) ||
-                (this.UserPassword == null || this.UserPassword.Length == 0))
+            if (String.IsNullOrEmpty(this.HostName) 
+             || String.IsNullOrEmpty(this.UserId) 
+             || String.IsNullOrEmpty(this.UserPassword))
             {
                 throw new XmppException("Invalid connection string options.");
             }

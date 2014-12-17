@@ -27,9 +27,9 @@
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-using System;
 using BabelIm.Configuration;
 using BabelIm.Infrastructure;
+using System;
 
 namespace BabelIm.ViewModels.Preferences
 {

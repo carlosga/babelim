@@ -30,11 +30,11 @@
 
 namespace Org.Mentalis.Network.ProxySocket
 {
+    using Org.Mentalis.Network.ProxySocket.Authentication;
     using System;
     using System.Net;
     using System.Net.Sockets;
     using System.Text;
-    using Org.Mentalis.Network.ProxySocket.Authentication;
 
     /// <summary>
     /// Implements the SOCKS5 protocol.

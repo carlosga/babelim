@@ -1,5 +1,5 @@
-﻿using System.Windows.Controls;
-using BabelIm.ViewModels;
+﻿using BabelIm.ViewModels;
+using System.Windows.Controls;
 
 namespace BabelIm.Views
 {

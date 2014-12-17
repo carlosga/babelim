@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Autofac;
 using BabelIm.Contracts;
 using BabelIm.Net.Xmpp.InstantMessaging;
-using Microsoft.Practices.Unity;
+using System;
+using System.Collections.Generic;
 
 namespace BabelIm.IoC
 {
@@ -35,7 +35,7 @@ namespace BabelIm.IoC
 
         #region · Fields ·
 
-        private IDictionary<string, IUnityContainer> containersDictionary;
+        private IContainer container;
 
         #endregion
 
@@ -46,13 +46,7 @@ namespace BabelIm.IoC
         /// </summary>
         private ServiceFactory()
         {
-            containersDictionary = new Dictionary<string, IUnityContainer>();
-
-            // Create root container
-            IUnityContainer rootContainer = new UnityContainer();
-            containersDictionary.Add("RootContext", rootContainer);
-
-            ConfigureRootContainer(rootContainer);
+			this.container = this.BuildContainer();
         }
 
         #endregion
@@ -66,9 +60,7 @@ namespace BabelIm.IoC
         /// <returns><see cref="M:Microsoft.Samples.NLayerApp.Infrastructure.CrossCutting.IoC.IServiceFactory.Resolve{TService}"/></returns>
         public TService Resolve<TService>()
         {
-            IUnityContainer container = this.containersDictionary["RootContext"];
-
-            return container.Resolve<TService>();
+            return this.container.Resolve<TService>();
         }
 
         /// <summary>
@@ -79,23 +71,7 @@ namespace BabelIm.IoC
         /// <returns>instance of TService</returns>
         public object Resolve(Type type)
         {
-            IUnityContainer container = this.containersDictionary["RootContext"];
-
-            return container.Resolve(type, null);
-        }
-
-        /// <summary>
-        /// <see cref="M:Microsoft.Samples.NLayerApp.Infrastructure.CrossCutting.IoC.IServiceFactory.Resolve{TService}"/>
-        /// </summary>
-        /// <param name="type"><see cref="M:Microsoft.Samples.NLayerApp.Infrastructure.CrossCutting.IoC.IServiceFactory.Resolve{TService}"/></param>
-        public void RegisterType(Type type)
-        {
-            IUnityContainer container = this.containersDictionary["RootContext"];
-
-            if (container != null)
-            {
-                container.RegisterType(type, new TransientLifetimeManager());
-            }
+            return this.container.Resolve(type, null);
         }
 
         #endregion
@@ -106,15 +82,22 @@ namespace BabelIm.IoC
         /// Configure root container.Register types and life time managers for unity builder process
         /// </summary>
         /// <param name="container">Container to configure</param>
-        private void ConfigureRootContainer(IUnityContainer container)
+        private IContainer BuildContainer()
         {
-            // Take into account that Types and Mappings registration could be also done using the UNITY XML configuration
-            // But we prefer doing it here (C# code) because we'll catch errors at compiling time instead execution time, if any type has been written wrong.
-
-            // Register Repositories mappings
-            container.RegisterType<IXmppSession, XmppSession>(new ContainerControlledLifetimeManager());
-            container.RegisterType<IChatViewManager, ChatViewManager>(new ContainerControlledLifetimeManager());
-            container.RegisterType<IConfigurationManager, ConfigurationManager>(new ContainerControlledLifetimeManager());
+			var builder = new ContainerBuilder();
+			 
+			// Register individual components		
+			builder.RegisterType<XmppSession>()
+				   .As<IXmppSession>()
+                   .SingleInstance();
+			builder.RegisterType<ChatViewManager>()
+				   .As<IChatViewManager>()
+                   .SingleInstance();
+			builder.RegisterType<ConfigurationManager>()
+				   .As<IConfigurationManager>()
+                   .SingleInstance();
+			 
+			return builder.Build();		
         }
 
         #endregion
